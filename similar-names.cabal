@@ -1,0 +1,39 @@
+name:                similar-names
+version:             0.1.0.0
+-- synopsis:
+-- description:
+homepage:            https://github.com/joshuaclayton/similar-names#readme
+license:             MIT
+license-file:        LICENSE
+author:              Josh Clayton
+maintainer:          sayhi@joshuaclayton.me
+copyright:           2017
+category:            Data Classification
+build-type:          Simple
+extra-source-files:  README.md
+cabal-version:       >=1.10
+
+library
+  hs-source-dirs:      src
+  exposed-modules:     Data.SimilarNames
+  build-depends:       base >= 4.7 && < 5
+                     , hierarchical-clustering
+                     , mtl
+                     , edit-distance
+                     , containers
+  default-language:    Haskell2010
+
+test-suite similar-names-test
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Spec.hs
+  build-depends:       base
+                     , similar-names
+                     , hspec
+                     , containers
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  default-language:    Haskell2010
+
+source-repository head
+  type:     git
+  location: https://github.com/joshuaclayton/similar-names
