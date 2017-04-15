@@ -10,7 +10,7 @@ import           Test.Hspec
 data Person = Person
     { pName :: String
     , pAge :: Int
-    } deriving (Eq, Show)
+    } deriving (Eq, Show, Ord)
 
 instance S.IsNamed Person where
     toName = pName
@@ -37,4 +37,4 @@ spec = context "SimilarNames" $ do
             S.groupSimilarlyNamed list `shouldBe` Map.fromList [(head list, list)]
 
         it "supports custom data types" $
-            S.groupSimilarlyNamed [Person "Jane Doe" 20, Person "Jane K Doe" 20, Person "John Doe" 20] `shouldBe` Map.fromList [("Jane Doe", [Person "Jane Doe" 20, Person "Jane K Doe" 20]), ("John Doe", [Person "John Doe" 20])]
+            S.groupSimilarlyNamed [Person "Jane Doe" 20, Person "Jane K Doe" 20, Person "John Doe" 20] `shouldBe` Map.fromList [(Person "Jane Doe" 20, [Person "Jane Doe" 20, Person "Jane K Doe" 20]), (Person "John Doe" 20, [Person "John Doe" 20])]

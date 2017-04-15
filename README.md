@@ -11,7 +11,7 @@ import qualified Data.SimilarNames as S
 data Person = Person
     { pName :: String
     , pAge :: Int
-    } deriving (Eq, Show)
+    } deriving (Eq, Ord, Show)
 
 instance S.IsNamed Person where
     toName = pName
@@ -21,7 +21,7 @@ S.reduceSimilarlyNamed [Person "Jane Doe" 20, Person "Jane K Doe" 20, Person "Jo
 -- results in: [Person "Jane Doe" 20, Person "John Doe" 20]
 
 S.groupSimilarlyNamed [Person "Jane Doe" 20, Person "Jane K Doe" 20, Person "John Doe" 20]
--- results in: Map.fromList [("Jane Doe", [Person "Jane Doe" 20, Person "Jane K Doe" 20]), ("John Doe", [Person "John Doe" 20])]
+-- results in: Map.fromList [(Person "Jane Doe" 20, [Person "Jane Doe" 20, Person "Jane K Doe" 20]), (Person "John Doe" 20, [Person "John Doe" 20])]
 ```
 
 ## License

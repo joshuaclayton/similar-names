@@ -14,7 +14,7 @@ import qualified Data.List as L
 import qualified Data.Map as Map
 import qualified Text.EditDistance as ED
 
-class Eq a => IsNamed a where
+class (Ord a, Eq a) => IsNamed a where
     toName :: a -> String
     updateName :: a -> String -> a
 
@@ -34,28 +34,28 @@ type WithSettings a = Reader Settings a
 reduceSimilarlyNamed :: IsNamed a => [a] -> [a]
 reduceSimilarlyNamed xs = runReader (reduceSimilarlyNamed' xs) defaultSettings
 
-groupSimilarlyNamed :: IsNamed a => [a] -> Map.Map String [a]
+groupSimilarlyNamed :: IsNamed a => [a] -> Map.Map a [a]
 groupSimilarlyNamed xs = runReader (groupSimilarlyNamed' xs) defaultSettings
 
 reduceSimilarlyNamed' :: IsNamed a => [a] -> WithSettings [a]
 reduceSimilarlyNamed' xs =
-    (uniqueElementsFromMap . Map.mapWithKey adjustValues) <$> groupSimilarlyNamed' xs
+    (uniqueElementsFromMap . updateNamesOfValuesFromKey) <$> groupSimilarlyNamed' xs
   where
-    adjustValues k = map (`updateName` k)
     uniqueElementsFromMap = L.nub . concat . Map.elems
+    updateNamesOfValuesFromKey = Map.mapWithKey (\k -> map (($ toName k) . updateName))
 
-groupSimilarlyNamed' :: IsNamed a => [a] -> WithSettings (Map.Map String [a])
+groupSimilarlyNamed' :: IsNamed a => [a] -> WithSettings (Map.Map a [a])
 groupSimilarlyNamed' xs = do
     settings <- ask
     (dendrosToMap . C.cutAt (dendro xs (distanceFormula settings))) <$> distance
   where
     distance = asks sDefaultDendrogramDistance
     dendrosToMap = foldl (flip go) Map.empty
-    go v = Map.insert (dendroToName v) (C.elements v)
+    go v = Map.insert (dendroToKey v) (C.elements v)
     dendro = C.dendrogram C.SingleLinkage
 
-dendroToName :: IsNamed a => C.Dendrogram a -> String
-dendroToName = toName . head . C.elements
+dendroToKey :: IsNamed a => C.Dendrogram a -> a
+dendroToKey = head . C.elements
 
 distanceFormula :: IsNamed a => Settings -> a -> a -> Double
 distanceFormula settings a b =
